@@ -1,5 +1,6 @@
 // Karma configuration
 // Generated on Fri May 30 2014 15:44:45 GMT-0400 (EDT)
+// trigger travis build
 
 module.exports = function (config) {
   config.set({
