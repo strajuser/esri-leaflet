@@ -22,7 +22,6 @@ module.exports = function (config) {
       'spec/Layers/ImageMapLayerSpec.js',
       'spec/Layers/DynamicMapLayerSpec.js',
       'spec/**/*Spec.js'
-
     ],
 
     // list of files to exclude
@@ -47,7 +46,7 @@ module.exports = function (config) {
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_DEBUG,
+    logLevel: config.LOG_WARN,
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
@@ -59,8 +58,18 @@ module.exports = function (config) {
       // 'ChromeCanary',
       // 'Firefox',
       // 'Safari',
-      'PhantomJS'
+      'PhantomJS_CORS'
     ],
+
+    // See https://github.com/karma-runner/karma-phantomjs-launcher/issues/74
+    customLaunchers: {
+      PhantomJS_CORS: {
+        base: 'PhantomJS',
+        flags: [
+          '--web-security=false'
+        ]
+      }
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
