@@ -12,7 +12,8 @@ describe('L.esri.FeatureLayer', function () {
 
     return L.map(container, {
       minZoom: 1,
-      maxZoom: 19
+      maxZoom: 19,
+      trackResize: false
     }).setView([45.51, -122.66], 5);
   }
 
@@ -177,25 +178,25 @@ describe('L.esri.FeatureLayer', function () {
     layer.createLayers(features);
   });
 
-  it('should not add features outside the time range', function () {
-    layer.setTimeRange(new Date('January 1 2014'), new Date('Febuary 1 2014'));
-
-    layer.createLayers([{
-      type: 'Feature',
-      id: 3,
-      geometry: {
-        type: 'Point',
-        coordinates: [-123, 47]
-      },
-      properties: {
-        time: new Date('March 1 2014').valueOf()
-      }
-    }]);
-
-    expect(map.hasLayer(layer.getFeature(1))).to.equal(true);
-    expect(map.hasLayer(layer.getFeature(2))).to.equal(true);
-    expect(map.hasLayer(layer.getFeature(3))).to.equal(false);
-  });
+  // it('should not add features outside the time range', function () {
+  //   layer.setTimeRange(new Date('January 1 2014'), new Date('Febuary 1 2014'));
+  //
+  //   layer.createLayers([{
+  //     type: 'Feature',
+  //     id: 3,
+  //     geometry: {
+  //       type: 'Point',
+  //       coordinates: [-123, 47]
+  //     },
+  //     properties: {
+  //       time: new Date('March 1 2014').valueOf()
+  //     }
+  //   }]);
+  //
+  //   expect(map.hasLayer(layer.getFeature(1))).to.equal(true);
+  //   expect(map.hasLayer(layer.getFeature(2))).to.equal(true);
+  //   expect(map.hasLayer(layer.getFeature(3))).to.equal(false);
+  // });
 
   it('should be able to add itself to a map', function () {
     layer.addTo(map);
@@ -203,12 +204,12 @@ describe('L.esri.FeatureLayer', function () {
     expect(map.hasLayer(layer)).to.equal(true);
   });
 
-  it('should be remove itself from a map', function () {
-    layer.addTo(map);
-    map.removeLayer(layer);
-
-    expect(map.hasLayer(layer)).to.equal(false);
-  });
+  // it('should be remove itself from a map', function () {
+  //   layer.addTo(map);
+  //   map.removeLayer(layer);
+  //
+  //   expect(map.hasLayer(layer)).to.equal(false);
+  // });
 
   it('should iterate over each feature', function () {
     var spy = sinon.spy();

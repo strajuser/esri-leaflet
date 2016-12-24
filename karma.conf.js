@@ -25,7 +25,7 @@ module.exports = function (config) {
     ],
 
     // list of files to exclude
-    exclude: [],
+    exclude: [ ],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
@@ -58,18 +58,18 @@ module.exports = function (config) {
       // 'ChromeCanary',
       // 'Firefox',
       // 'Safari',
-      'PhantomJS_CORS'
+      'PhantomJS'
     ],
 
     // See https://github.com/karma-runner/karma-phantomjs-launcher/issues/74
-    customLaunchers: {
-      PhantomJS_CORS: {
-        base: 'PhantomJS',
-        flags: [
-          '--web-security=false'
-        ]
-      }
-    },
+    // customLaunchers: {
+    //   PhantomJS_CORS: {
+    //     base: 'PhantomJS',
+    //     flags: [
+    //       '--web-security=false'
+    //     ]
+    //   }
+    // },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
