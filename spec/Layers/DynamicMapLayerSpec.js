@@ -61,7 +61,7 @@ describe('L.esri.DynamicMapLayer', function () {
     layer = L.esri.dynamicMapLayer({
       url: url
     });
-    layer.options.useCors = false;
+    // layer.options.useCors = false;
     map = createMap();
   });
 

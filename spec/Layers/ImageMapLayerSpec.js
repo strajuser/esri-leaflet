@@ -60,7 +60,7 @@ describe('L.esri.ImageMapLayer', function () {
       url: url,
       f: 'json'
     });
-    layer.options.useCors = false;
+    // layer.options.useCors = false;
   });
 
   afterEach(function () {

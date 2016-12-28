@@ -681,34 +681,34 @@ describe('L.esri.FeatureManager', function () {
   //   }));
   // });
 
-  // it('should wrap the updateFeature method on the underlying service and refresh', function (done) {
-  //   server.respondWith('POST', 'http://gis.example.com/mock/arcgis/rest/services/MockService/MockFeatureServer/0/updateFeatures', JSON.stringify({
-  //     'updateResults': [{
-  //       'objectId': 1,
-  //       'success': true
-  //     }]
-  //   }));
-  //
-  //   layer.updateFeature({
-  //     type: 'Feature',
-  //     id: 1,
-  //     geometry: {
-  //       type: 'Point',
-  //       coordinates: [45, -121]
-  //     },
-  //     properties: {
-  //       foo: 'bar'
-  //     }
-  //   }, function (error, response) {
-  //     expect(response).to.deep.equal({
-  //       'objectId': 1,
-  //       'success': true
-  //     });
-  //     done();
-  //   });
-  //
-  //   server.respond();
-  // });
+  it('should wrap the updateFeature method on the underlying service and refresh', function (done) {
+    server.respondWith('POST', 'http://gis.example.com/mock/arcgis/rest/services/MockService/MockFeatureServer/0/updateFeatures', JSON.stringify({
+      'updateResults': [{
+        'objectId': 1,
+        'success': true
+      }]
+    }));
+
+    layer.updateFeature({
+      type: 'Feature',
+      id: 1,
+      geometry: {
+        type: 'Point',
+        coordinates: [45, -121]
+      },
+      properties: {
+        foo: 'bar'
+      }
+    }, function (error, response) {
+      expect(response).to.deep.equal({
+        'objectId': 1,
+        'success': true
+      });
+      done();
+    });
+
+    server.respond();
+  });
 
   it('should wrap the removeFeature method on the underlying service', function (done) {
     server.respondWith('POST', 'http://gis.example.com/mock/arcgis/rest/services/MockService/MockFeatureServer/0/deleteFeatures', JSON.stringify({
