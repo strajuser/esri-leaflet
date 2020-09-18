@@ -1,11 +1,12 @@
 import { latLng, latLngBounds, LatLng, LatLngBounds, Util, DomUtil, GeoJSON } from 'leaflet';
-import { jsonp } from './Request';
+import { request, warn } from './Request';
 import { options } from './Options';
+import { Support } from './Support';
 
 import {
   geojsonToArcGIS as g2a,
   arcgisToGeoJSON as a2g
-} from '@esri/arcgis-to-geojson-utils';
+} from '@terraformer/arcgis';
 
 export function geojsonToArcGIS (geojson, idAttr) {
   return g2a(geojson, idAttr);
@@ -164,12 +165,6 @@ export function geojsonTypeToArcGIS (geoJsonType) {
   return arcgisGeometryType;
 }
 
-export function warn () {
-  if (console && console.warn) {
-    console.warn.apply(console, arguments);
-  }
-}
-
 export function calcAttributionWidth (map) {
   // either crop at 55px or user defined buffer
   return (map.getSize().x - options.attributionWidthOffset) + 'px';
@@ -208,16 +203,6 @@ export function setEsriAttribution (map) {
     // update the width used to truncate when the map itself is resized
     map.on('resize', function (e) {
       map.attributionControl._container.style.maxWidth = calcAttributionWidth(e.target);
-    });
-
-    // remove injected scripts and style tags
-    map.on('unload', function () {
-      hoverAttributionStyle.parentNode.removeChild(hoverAttributionStyle);
-      attributionStyle.parentNode.removeChild(attributionStyle);
-      var nodeList = document.querySelectorAll('.esri-leaflet-jsonp');
-      for (var i = 0; i < nodeList.length; i++) {
-        nodeList.item(i).parentNode.removeChild(nodeList.item(i));
-      }
     });
 
     map.attributionControl._esriAttributionAdded = true;
@@ -284,41 +269,47 @@ export function _setGeometry (geometry) {
 }
 
 export function _getAttributionData (url, map) {
-  jsonp(url, {}, Util.bind(function (error, attributions) {
-    if (error) { return; }
-    map._esriAttributions = [];
-    for (var c = 0; c < attributions.contributors.length; c++) {
-      var contributor = attributions.contributors[c];
+  if (Support.cors) {
+    request(url, {}, Util.bind(function (error, attributions) {
+      if (error) { return; }
+      map._esriAttributions = [];
+      for (var c = 0; c < attributions.contributors.length; c++) {
+        var contributor = attributions.contributors[c];
 
-      for (var i = 0; i < contributor.coverageAreas.length; i++) {
-        var coverageArea = contributor.coverageAreas[i];
-        var southWest = latLng(coverageArea.bbox[0], coverageArea.bbox[1]);
-        var northEast = latLng(coverageArea.bbox[2], coverageArea.bbox[3]);
-        map._esriAttributions.push({
-          attribution: contributor.attribution,
-          score: coverageArea.score,
-          bounds: latLngBounds(southWest, northEast),
-          minZoom: coverageArea.zoomMin,
-          maxZoom: coverageArea.zoomMax
-        });
+        for (var i = 0; i < contributor.coverageAreas.length; i++) {
+          var coverageArea = contributor.coverageAreas[i];
+          var southWest = latLng(coverageArea.bbox[0], coverageArea.bbox[1]);
+          var northEast = latLng(coverageArea.bbox[2], coverageArea.bbox[3]);
+          map._esriAttributions.push({
+            attribution: contributor.attribution,
+            score: coverageArea.score,
+            bounds: latLngBounds(southWest, northEast),
+            minZoom: coverageArea.zoomMin,
+            maxZoom: coverageArea.zoomMax
+          });
+        }
       }
-    }
 
-    map._esriAttributions.sort(function (a, b) {
-      return b.score - a.score;
-    });
+      map._esriAttributions.sort(function (a, b) {
+        return b.score - a.score;
+      });
 
-    // pass the same argument as the map's 'moveend' event
-    var obj = { target: map };
-    _updateMapAttribution(obj);
-  }, this));
+      // pass the same argument as the map's 'moveend' event
+      var obj = { target: map };
+      _updateMapAttribution(obj);
+    }, this));
+  }
 }
 
 export function _updateMapAttribution (evt) {
   var map = evt.target;
   var oldAttributions = map._esriAttributions;
 
-  if (map && map.attributionControl && oldAttributions) {
+  if (!map || !map.attributionControl) return;
+
+  var attributionElement = map.attributionControl._container.querySelector('.esri-dynamic-attribution');
+
+  if (attributionElement && oldAttributions) {
     var newAttributions = '';
     var bounds = map.getBounds();
     var wrappedBounds = latLngBounds(
@@ -337,8 +328,6 @@ export function _updateMapAttribution (evt) {
     }
 
     newAttributions = newAttributions.substr(2);
-    var attributionElement = map.attributionControl._container.querySelector('.esri-dynamic-attribution');
-
     attributionElement.innerHTML = newAttributions;
     attributionElement.style.maxWidth = calcAttributionWidth(map);
 
@@ -347,6 +336,9 @@ export function _updateMapAttribution (evt) {
     });
   }
 }
+
+// for backwards compatibility
+export { warn };
 
 export var EsriUtil = {
   warn: warn,

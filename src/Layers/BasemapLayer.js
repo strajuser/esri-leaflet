@@ -47,7 +47,8 @@ export var BasemapLayer = TileLayer.extend({
           minZoom: 1,
           maxZoom: 16,
           subdomains: ['server', 'services'],
-          pane: (pointerEvents) ? 'esri-labels' : 'tilePane'
+          pane: (pointerEvents) ? 'esri-labels' : 'tilePane',
+          attribution: ''
         }
       },
       NationalGeographic: {
@@ -124,7 +125,8 @@ export var BasemapLayer = TileLayer.extend({
           minZoom: 1,
           maxZoom: 19,
           subdomains: ['server', 'services'],
-          pane: (pointerEvents) ? 'esri-labels' : 'tilePane'
+          pane: (pointerEvents) ? 'esri-labels' : 'tilePane',
+          attribution: ''
         }
       },
       ShadedRelief: {
@@ -181,6 +183,24 @@ export var BasemapLayer = TileLayer.extend({
           maxZoom: 19,
           attribution: 'Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'
         }
+      },
+      Physical: {
+        urlTemplate: tileProtocol + '//{s}.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 8,
+          subdomains: ['server', 'services'],
+          attribution: 'U.S. National Park Service'
+        }
+      },
+      ImageryFirefly: {
+        urlTemplate: tileProtocol + '//fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          minZoom: 1,
+          maxZoom: 19,
+          attribution: 'Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
+          attributionUrl: 'https://static.arcgis.com/attribution/World_Imagery'
+        }
       }
     }
   },
@@ -194,7 +214,7 @@ export var BasemapLayer = TileLayer.extend({
     } else if (typeof key === 'string' && BasemapLayer.TILES[key]) {
       config = BasemapLayer.TILES[key];
     } else {
-      throw new Error('L.esri.BasemapLayer: Invalid parameter. Use one of "Streets", "Topographic", "Oceans", "OceansLabels", "NationalGeographic", "Gray", "GrayLabels", "DarkGray", "DarkGrayLabels", "Imagery", "ImageryLabels", "ImageryTransportation", "ImageryClarity", "ShadedRelief", "ShadedReliefLabels", "Terrain", "TerrainLabels" or "USATopo"');
+      throw new Error('L.esri.BasemapLayer: Invalid parameter. Use one of "Streets", "Topographic", "Oceans", "OceansLabels", "NationalGeographic", "Physical", "Gray", "GrayLabels", "DarkGray", "DarkGrayLabels", "Imagery", "ImageryLabels", "ImageryTransportation", "ImageryClarity", "ImageryFirefly", ShadedRelief", "ShadedReliefLabels", "Terrain", "TerrainLabels" or "USATopo"');
     }
 
     // merge passed options into the config options
@@ -202,8 +222,11 @@ export var BasemapLayer = TileLayer.extend({
 
     Util.setOptions(this, tileOptions);
 
-    if (this.options.token) {
+    if (this.options.token && config.urlTemplate.indexOf('token=') === -1) {
       config.urlTemplate += ('?token=' + this.options.token);
+    }
+    if (this.options.proxy) {
+      config.urlTemplate = this.options.proxy + '?' + config.urlTemplate;
     }
 
     // call the initialize method on L.TileLayer to set everything up
@@ -219,7 +242,7 @@ export var BasemapLayer = TileLayer.extend({
     }
     // some basemaps can supply dynamic attribution
     if (this.options.attributionUrl) {
-      _getAttributionData(this.options.attributionUrl, map);
+      _getAttributionData((this.options.proxy ? this.options.proxy + '?' : '') + this.options.attributionUrl, map);
     }
 
     map.on('moveend', _updateMapAttribution);
@@ -229,6 +252,7 @@ export var BasemapLayer = TileLayer.extend({
 
   onRemove: function (map) {
     map.off('moveend', _updateMapAttribution);
+
     TileLayer.prototype.onRemove.call(this, map);
   },
 

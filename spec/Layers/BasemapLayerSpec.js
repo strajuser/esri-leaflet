@@ -57,7 +57,8 @@ describe('L.esri.BasemapLayer', function () {
   });
 
   it('can return valid basemaps', function () {
-    var testmaps = ['Streets', 'Topographic', 'NationalGeographic', 'Oceans', 'OceansLabels', 'DarkGray', 'DarkGrayLabels', 'Gray', 'GrayLabels', 'Imagery', 'ImageryLabels', 'ImageryTransportation', 'ShadedRelief', 'ShadedReliefLabels', 'Terrain', 'TerrainLabels', 'USATopo', 'ImageryClarity'];
+    var testmaps = ['Streets', 'Topographic', 'NationalGeographic', 'Oceans', 'OceansLabels', 'DarkGray', 'DarkGrayLabels', 'Gray', 'GrayLabels', 'Imagery', 'ImageryLabels', 'ImageryTransportation', 'ShadedRelief', 'ShadedReliefLabels', 'Terrain', 'TerrainLabels', 'USATopo', 'ImageryClarity', 'ImageryFirefly', 'Physical'];
+
     for (var i = 0, len = testmaps.length; i < len; i++) {
       var name = testmaps[i];
       expect(L.esri.basemapLayer(name)).to.be.instanceof(L.esri.BasemapLayer);
@@ -90,6 +91,13 @@ describe('L.esri.BasemapLayer', function () {
     var baseLayer = L.esri.basemapLayer('Streets', {token: 'bogus'});
     map.addLayer(baseLayer);
     expect(baseLayer._url).to.contain('token=bogus');
+  });
+
+  it('will prepend proxy when fetching tiles if necessary', function () {
+    var proxyURL = 'http://example.proxy';
+    var baseLayer = L.esri.basemapLayer('Streets', {proxy: proxyURL});
+    map.addLayer(baseLayer);
+    expect(baseLayer._url).to.contain(proxyURL);
   });
 
   it('will throw an error given invalid basemap name', function () {

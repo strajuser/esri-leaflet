@@ -183,11 +183,18 @@ export var ImageMapLayer = RasterLayer.extend({
         if (this.options.token) {
           response.href += ('?token=' + this.options.token);
         }
+        if (this.options.proxy) {
+          response.href = this.options.proxy + '?' + response.href;
+        }
         this._renderImage(response.href, bounds);
       }, this);
     } else {
       params.f = 'image';
-      this._renderImage(this.options.url + 'exportImage' + Util.getParamString(params), bounds);
+      var fullUrl = this.options.url + 'exportImage' + Util.getParamString(params);
+      if (this.options.proxy) {
+        fullUrl = this.options.proxy + '?' + fullUrl;
+      }
+      this._renderImage(fullUrl, bounds);
     }
   }
 });
